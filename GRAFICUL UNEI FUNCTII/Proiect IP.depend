@@ -1,0 +1,49 @@
+# depslib dependency file v1.0
+1641724146 source:d:\proiect ip\main.cpp
+	<iostream>
+	<winbgim.h>
+	<stdlib.h>
+	<string.h>
+	<math.h>
+
+1640344968 d:\proiect ip\grafica.h
+	<iostream>
+	<graphics.h>
+	<winbgim.h>
+	<stdlib.h>
+	<time.h>
+	<conio.h>
+
+1641226489 d:\proiect ip\functii_elementare.h
+
+1641841799 source:d:\facultate\anul 1\sem 1\ip\proiect ip-final\proiect ip\main.cpp
+	<iostream>
+	<winbgim.h>
+	<stdlib.h>
+	<string.h>
+	<math.h>
+	"Functii_elementare.h"
+	"algoritmica.h"
+
+1641821001 d:\facultate\anul 1\sem 1\ip\proiect ip-final\proiect ip\functii_elementare.h
+	<string.h>
+	<math.h>
+
+1641841606 d:\facultate\anul 1\sem 1\ip\proiect ip-final\proiect ip\algoritmica.h
+
+1641941670 source:d:\facultate\anul 1\sem 1\ip\finalul\graficul unei functii\main.cpp
+	<iostream>
+	<winbgim.h>
+	<stdlib.h>
+	<string.h>
+	<sstream>
+	<math.h>
+	"Functii_elementare.h"
+	"algoritmica.h"
+
+1641889762 d:\facultate\anul 1\sem 1\ip\finalul\graficul unei functii\functii_elementare.h
+	<string.h>
+	<math.h>
+
+1641939944 d:\facultate\anul 1\sem 1\ip\finalul\graficul unei functii\algoritmica.h
+

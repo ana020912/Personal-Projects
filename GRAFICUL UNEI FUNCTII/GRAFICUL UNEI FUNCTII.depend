@@ -1,0 +1,15 @@
+# depslib dependency file v1.0
+1642075476 source:d:\graficul unei functii\main.cpp
+	<iostream>
+	<winbgim.h>
+	<string.h>
+	<math.h>
+	"Functii_elementare.h"
+	"algoritmica.h"
+
+1641889762 d:\graficul unei functii\functii_elementare.h
+	<string.h>
+	<math.h>
+
+1642072694 d:\graficul unei functii\algoritmica.h
+

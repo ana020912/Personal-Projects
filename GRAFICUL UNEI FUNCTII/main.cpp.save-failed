@@ -1,0 +1,914 @@
+#include <iostream>
+#include <winbgim.h>
+#include<stdlib.h>
+#include<string.h>
+#include<math.h>
+#include<limits.h>
+#include<ctype.h>
+#define Infinit INT_MAX
+#define Epsilon 0.00001
+#define pi 3.1415926
+#define MAX 101
+#define MAX_EXP 300
+#define unitate 50
+#include"Grafica.h"
+#include"Functii_elementare.h"
+
+using namespace std;
+
+//char Operatii_Binare[] = "+-*/&<>=#^";
+/*
+char Operatii_Unare[] = "scaler";
+char Cifre[] = " 0123456789.eE";
+bool eroare = false; // memoreaza true/false in functie de corectitudinea d.p.d.v sintactic a expresiei functiei
+*/
+struct Functie
+{
+    char expresie[MAX_EXP];  // expresia matematica a functiei
+    char comp[MAX][MAX]; // componentele functiei (operatori+operanzi)
+    int lung; //lungimea expresiei
+    int nr_comp; // nr de componente ale functiei
+    float a,b; // intervalul de evaluare a functiei
+    int nr_puncte; // numarul de puncte de evaluare
+};
+
+struct Operanzi
+{
+    double st1[MAX];
+    int top1;
+}s_operand;
+
+struct Operatori
+{
+    char st2[MAX];
+    int top2;
+}s_operator;
+
+//////////////////////////////////////////////////////////////////////////////////
+bool interiorButon(int x,int y, int x1,int y1,int x2, int y2)
+{
+    return x1<=x&&x<=x2&&y1<=y&&y<=y2;
+}
+
+void Meniu();
+void addSpatii(char sir[]);
+void aflareComponente(char s[], char sir[][MAX], int &L);
+void ReprezintaGrafic(float a,float b,char sir[][MAX],int L);
+void ReprezintaAsimptota();
+void Inapoi()
+{
+settextstyle(3,0,5);
+outtextxy(10,930,"INAPOI");
+int x,y;
+
+do{
+        x=mousex();
+        y=mousey();
+        if(ismouseclick(WM_LBUTTONDOWN)&& interiorButon(x,y,0,900,200,1000))
+        {
+            clearmouseclick(WM_LBUTTONDOWN);
+             Meniu();
+
+        }
+         clearmouseclick(WM_LBUTTONDOWN);
+    Sleep(3);
+}while(true);
+}
+
+void Desenare_Buton_Grafic_Functie()
+{
+settextstyle(3,0,4);
+}
+
+void Desenare_Buton_Despre()
+{
+setcolor(WHITE);
+settextstyle(3,0,4);
+}
+
+void Desenare_Buton_Iesire()
+{
+//readimagefile("Buton.jpg",400,700,600,800);
+setcolor(WHITE);
+settextstyle(3,0,4);
+
+//outtextxy(455,735,"EXIT");
+}
+void Foaie_de_mate()
+{
+    int i;
+    setbkcolor(WHITE);
+    clearviewport();
+    for(i=0;i<=1000;i=i+50)
+    {
+     setcolor(BLUE);
+     line(0,i,1000,i);
+     line(i,0,i,1000);
+    }
+}
+void Desenare_Axe()
+{
+    //initwindow(1000,1000);
+
+
+    Foaie_de_mate();
+
+    setcolor(RED);
+    settextstyle(0,0,3);
+    outtextxy(915,545,"X");
+    outtextxy(525,135,"Y");
+
+    setlinestyle(SOLID_LINE,THICK_WIDTH,5);
+
+    line(501,0,501,1000);
+    line(1,501,1000,501);
+
+    line(500,0,470,100);
+    line(500,0,530,100);
+
+    line(1000,500,940,450);
+    line(1000,500,940,550);
+
+      //  getch();
+        //closegraph();
+
+
+}
+void CitesteSir(int x, int y, char mesaj[300], char sir[300])
+{
+
+    int p;
+    char Enter = 13; char BackSpace = 8; char Escape = 27; char s2[2]; s2[1]='\0';
+    char MultimeDeCaractereAcceptabile[300]="0123456789abcdefghijklmnopqrstuvwxyz~!`@#$%+-^&*/\\()_=[],;.?<>:;{} ";
+    char S_initial[300]; char tasta; char S_[300]; char mesaj_[300];
+    setbkcolor(CYAN);
+    clearviewport();
+    strcpy(mesaj_,mesaj);
+    strcpy(S_initial,sir); settextstyle(3,0,4); setcolor(WHITE);
+    settextjustify(0,0); outtextxy(x,y,mesaj_);
+    x=x+textwidth(mesaj);strcpy(sir,"");
+    strcpy(S_,sir); strcat(S_,"_");
+    setcolor(BLACK); outtextxy(x,y,S_);
+    s2[0]=tasta; strcat(sir,s2); strcpy(S_,sir); strcat(S_,"_");
+    setcolor(WHITE); outtextxy(x,y,S_);
+
+    do {
+        tasta=getch();
+        if (tasta==0) { tasta=getch(); }
+        else
+            if (strchr(MultimeDeCaractereAcceptabile, tasta))
+            {
+                // stergem fostul sir
+                strcpy(S_,sir); strcat(S_,"_");
+                setcolor(CYAN);
+
+                outtextxy(x,y,S_);
+                s2[0]=tasta; strcat(sir,s2); strcpy(S_,sir); strcat(S_,"_");
+                setcolor(WHITE); outtextxy(x,y,S_);
+            }
+            if (tasta==BackSpace)
+                    if (!(strcmp(sir,""))) p=301;
+                    else
+                    {
+                        setcolor(CYAN); outtextxy(x,y,S_); setcolor(WHITE);
+                       sir[strlen(sir)-1]='\0'; strcpy(S_,sir); strcat(S_,"_") ;
+                        outtextxy(x,y,S_);
+                    }
+            else
+                if (tasta!=Enter && tasta!=Escape) { p=301; }
+
+
+
+    } while (tasta!=Enter && tasta!=Escape);
+    if (tasta == Escape) strcpy(sir,S_initial);
+    setcolor(CYAN); outtextxy(x,y,S_);setcolor(WHITE); outtextxy(x,y,sir);
+
+}
+
+void Butonul_Despre()
+{
+setbkcolor(CYAN);
+clearviewport();
+outtextxy(100,100,"Programul are rolul de a reprezenta graficul ");
+outtextxy(160,150,"unei functii si asimptotele acesteia.");
+Inapoi();
+}
+void Butonul_Grafic()
+{
+    Functie E;
+
+    setbkcolor(GREEN);
+    clearviewport();
+
+    settextstyle(3,0,5);
+    CitesteSir(100,100,"Introduceti functia: ",E.expresie);
+    addSpatii(E.expresie);
+    aflareComponente(E.expresie, E.comp, E.nr_comp);
+
+    Desenare_Axe();
+    setcolor(GREEN);
+    setlinestyle(0,0,2);
+    ReprezintaGrafic(-20,20,E.comp,E.nr_comp);
+    ReprezintaAsimptota();
+    Inapoi();
+
+
+}
+void Calculeaza();
+void Butoane_Meniu()
+{
+    int x,y;
+    do{
+        x=mousex();
+        y=mousey();
+        if(ismouseclick(WM_LBUTTONDOWN)&& interiorButon(x,y,400,300,600,400))
+        {
+            clearmouseclick(WM_LBUTTONDOWN);
+             Butonul_Grafic();
+
+
+
+        }
+        else
+            if(ismouseclick(WM_LBUTTONDOWN)&&interiorButon(x,y,400,500,600,600))
+        {
+            clearmouseclick(WM_LBUTTONDOWN);
+            Calculeaza();
+        }
+        else
+            if(ismouseclick(WM_LBUTTONDOWN)&&interiorButon(x,y,400,700,600,800))
+        {
+            clearmouseclick(WM_LBUTTONDOWN);
+            exit(0);
+        }
+        clearmouseclick(WM_LBUTTONDOWN);
+        Sleep(3);
+    }while(true);
+    getch();
+}
+
+void Meniu()
+{
+initwindow(1000,1000);
+
+
+readimagefile("Fundal4.jpg",0,0,1000,1000);
+settextstyle(3,0,5);
+
+//outtextxy(237,140,"GRAFICUL UNEI FUNCTII");
+
+Desenare_Buton_Grafic_Functie();
+Desenare_Buton_Despre();
+Desenare_Buton_Iesire();
+Butoane_Meniu();
+
+getch();
+closegraph();
+
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+unsigned prioritate (char op)
+{
+    if (op == '(' || op == ')')
+        return 0;
+    if (op == '+' || op == '-')
+        return 1 ;
+    if (op == '*' || op == '/')
+        return 2;
+    if (op == '^')
+        return 3;
+    if (op == '#' || op =='=' || op =='<' || op == '>')
+        return 4;
+    return 5;
+}
+
+
+
+//inserez caracterul ' ' pe o pozitie data
+void insereazaSpatiu (char sir[], int poz, int &lung)
+{
+    lung++;
+    for (int i = lung - 2; i >= poz; --i)
+    {
+        sir[i + 1] = sir[i];
+    }
+    sir[poz] = ' ';
+}
+
+// adaug spatii intre elementele diferie pentru a putea fi diferentiate
+void addSpatii(char sir[])
+{
+char Operatii_Binare[] = "+-*/&<>=#^";
+char Operatii_Unare[] = "scaler";
+char Cifre[] = " 0123456789.eE";
+bool eroare = false; // memoreaza true/false in functie de corectitudinea d.p.d.v sintactic a expresiei functiei
+    strcat(sir,"$");
+  //  E.lung = strlen(E.expresie);
+    int i = 0, L = strlen(sir);
+    if (sir[0] == '-') i++;
+    while (i < L)
+    {
+        if (sir[i] == 'x')
+        {
+            insereazaSpatiu(sir, i+1, L);
+            i++;
+        }
+        else if (strchr(Operatii_Binare, sir[i]))
+        {
+            if (strchr(Cifre,sir[i-2]) || sir[i-2] == 'x' || sir[i-2] == ')')
+            {
+                 insereazaSpatiu(sir , i + 1, L);
+                 i++;
+            }
+        }
+        else if (strchr("()",sir[i]))
+        {
+             insereazaSpatiu(sir , i + 1, L);
+             i++;
+        }
+        else if (strchr(Operatii_Unare, sir[i]))
+        {
+            insereazaSpatiu(sir , i + 3, L);
+            i+=3;
+        }
+        else if (strchr(Cifre, sir[i]))
+        {
+            //daca numarul incepe cu "." sau "E" functia este incorecta d.p.d.v sintactic
+            if (sir[i] == '.' || sir[i] == 'E')
+            {
+                eroare = true;
+                return;
+            }
+            int p = i;
+            unsigned nr = 0; // nr de puncte zecimale pentru verificarea daca numarul este corect d.p.d.v sintactic (pt numere reale)
+            while (sir[p+1] && nr <= 1 && strchr(Cifre, sir[p]))
+            {
+                if (sir[p] == '.')
+                    nr++;
+
+                if (sir[p] == 'E')
+                {
+                    p++; //sar peste operatorul + sau - care apare dupa E
+                }
+                p++;
+            }
+
+            if (nr > 1)
+            {
+                eroare = true;
+                return;
+            }
+            insereazaSpatiu(sir, p, L);
+            i = p;
+        }
+        i++;
+    }
+    sir[L - 1] = '\0';
+  //   cout << E.expresie;
+}
+
+//despart expresia functiei pe componente si le memorez in E.comp[MAX]
+void aflareComponente(char s[], char sir[][MAX], int &L)
+{
+    L = 0;
+    strcpy(sir[++L],"(");
+    char *componenta;
+    componenta = strtok(s, " $");
+  //  cout << componenta << '\n';
+    while (componenta)
+    {
+        strcpy(sir[++L], componenta);
+        componenta = strtok(NULL, " $");
+    }
+     strcpy(sir[++L],")");
+}
+
+double Calculator (char sir[][MAX], int L)
+{
+char Operatii_Binare[] = "+-*/&<>=#^";
+char Operatii_Unare[] = "scaler";
+char Cifre[] = " 0123456789.eE";
+bool eroare = false; // memoreaza true/false in functie de corectitudinea d.p.d.v sintactic a expresiei functiei
+double rezultat;
+s_operand.top1 = 0;
+s_operator.top2 = 1;
+s_operator.st2[s_operator.top2] = '(';
+int i = 2; // contorul componentelor
+        while (i <= L)
+        {
+            if ((Este_Numar(sir[i])&&sir[i][0]!='-')||(sir[i][0]=='-'&&sir[i][1]>='1'&&sir[i][1]<='9'))//MODIFICAT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+            {
+                double nr = atof(sir[i]);
+                s_operand.st1[++s_operand.top1] = nr;
+                //depanare();
+            }
+
+              else
+            {
+                switch(sir[i][0])
+                {
+                    case 'p':
+                        {
+                            s_operand.st1[++s_operand.top1] = pi;
+                            break;
+                        }
+
+                        //inceput de bloc nou
+                    case '(':
+                        {
+                            s_operator.st2[++s_operator.top2] = '(';
+                            break;
+                        }
+                    default:
+                        {
+                            unsigned pr_curent = prioritate(sir[i][0]); //prioritatea operatorului curent
+                            unsigned pr_top = prioritate(s_operator.st2[s_operator.top2]); //prioritatea operatorului din vf stivei
+                            if (pr_curent > pr_top)
+                            {
+                                s_operator.st2[++s_operator.top2] = sir[i][0];
+                            }
+                             // nr negativ aflat intre paranteze
+                            else if ((s_operator.st2[s_operator.top2] == '(' && sir[i][0] == ')')||s_operator.st2[s_operator.top2]==')')
+                                {
+                                    s_operator.top2--;
+                                }
+                                  else
+                            {
+                                double val;
+                                double x1, x2;
+                                x1 = s_operand.st1[s_operand.top1 - 1]; //penultimul operand
+                                x2 = s_operand.st1[s_operand.top1]; // ultimul operand
+                                while (s_operator.top2 > 1 && !(pr_curent > pr_top))
+                                {
+                                   int g=0;//AM ADAUGAT ACEST g PENTRU APELUL FUNCTIILOR CARE FOLOSESC O SINGURA VARIABILA
+
+                                    switch(s_operator.st2[s_operator.top2]) //! daca nu se verifica niciun caz iese automat din switch?
+                                    {
+
+                                        case '=':
+                                            {
+                                                val = Egal(x1,x2);
+
+                                                break;
+                                            }
+                                        case '#':
+                                            {
+                                                val = Diferit(x1,x2);
+                                                break;
+                                            }
+                                        case '<':
+                                            {
+                                                val = Mai_Mic(x1,x2);
+                                                break;
+                                            }
+                                        case '>':
+                                            {
+                                                val = Mai_Mare(x1,x2);
+                                                break;
+                                            }
+                                        case '+':
+                                            {
+                                                val = Plus(x1,x2);
+                                                break;
+                                            }
+                                        case '-':
+                                            {
+                                                val = Minus(x1,x2);
+                                                break;
+                                            }
+                                        case '*':
+                                            {
+                                                val = Inmultire(x1,x2);
+                                                break;
+                                            }
+                                        case '/':
+                                            {
+                                                val = Impartire(x1,x2);
+                                                break;
+                                            }
+                                        case '^':
+                                            {
+                                                val = Putere(x1,x2);
+                                                break;
+                                            }
+                                        case 's':
+                                            {
+                                            val = Sinus(x2); g=1;//MODIFICAT TREBUIA X2 +g1=1
+                                            break;
+                                            }
+                                        case 'c':
+                                            {
+                                                val = Cosinus(x2); g=1;//MODIFICAT TREBUIA X2 +g1=1
+                                                break;
+                                            }
+                                        case 'a':
+                                            {
+                                                val = Modul(x2); g=1;//g1=1
+                                                break;
+                                            }
+                                        case 'l':
+                                            {
+                                                val = Logaritm(x2); g=1;//g1=1
+                                                break;
+                                            }
+                                        case 'e':
+                                            {
+                                                val = Exponential(x2); g=1;//g1=1
+                                                break;
+                                            }
+                                        case 'r':
+                                            {
+                                                val = Radical(x2); g=1;//g1=1
+                                                break;
+                                            }
+                                    }
+                                   // depanare();
+                                    if (s_operator.st2[s_operator.top2] == '(')
+                                    {
+                                        s_operator.top2--;
+                                        break;
+                                    }
+                                    if(g==0)//ACEST IF INSEAMNA: DACA AM FOLOSIT O FUNCTIE CU 2 PARAMETRI CARE AU FORMAT UN PARAMETRU (ADUNARE/SCADERE/INMULTIRE)
+                                     s_operand.top1--;//ATUNCI REDUCEM NUMARUL DE ELEMENTE DIN STIVA 1 CA SA NU DEA EROARE LA IF-ul DE LA LINIA 492
+                                     s_operand.st1[s_operand.top1] = val;
+                                     s_operator.top2--;
+                                     pr_top = prioritate(s_operator.st2[s_operator.top2]);
+                                     x1 = s_operand.st1[s_operand.top1 - 1];//MODIFICAT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                                     x2 = s_operand.st1[s_operand.top1];//MODIFICAT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+                            } //while
+                            if (sir[i][0] != ')')
+                                s_operator.st2[++s_operator.top2] = sir[i][0];
+                        } //else
+                        break;
+                    } //default
+            }
+        }
+        i++;
+    }//while
+
+  if (s_operand.top1 == 1)
+        rezultat = s_operand.st1[s_operand.top1];
+
+  else
+  {
+       eroare = true;
+       rezultat = Infinit;
+  }
+  return rezultat;
+
+}
+void Calculeaza()
+{
+    double rezultat;
+    Functie E;
+    E.nr_comp=0;
+
+    while(1)
+   {
+    cin >> E.expresie;
+    addSpatii(E.expresie);
+    aflareComponente(E.expresie, E.comp, E.nr_comp);
+    rezultat = Calculator( E.comp, E.nr_comp);
+    cout<<"Calculeaza..."<<endl;
+    delay(2000);
+    if(rezultat==Infinit)
+    cout<<"ERROR"<<endl;
+    else
+    cout<<rezultat<<endl;
+
+    }
+}
+double calculFunctie (double x, char sir[][MAX], int L)
+{
+char Operatii_Binare[] = "+-*/&<>=#^";
+char Operatii_Unare[] = "scaler";
+char Cifre[] = " 0123456789.eE";
+bool eroare = false; // memoreaza true/false in functie de corectitudinea d.p.d.v sintactic a expresiei functiei
+    double rezultat;
+    s_operand.top1 = 0;
+    s_operator.top2 = 1;
+    s_operator.st2[s_operator.top2] = '(';
+    int i = 2; // contorul componentelor
+        while (i <= L)
+        {
+            if ((Este_Numar(sir[i])&&sir[i][0]!='-')||(sir[i][0]=='-'&&sir[i][1]>='1'&&sir[i][1]<='9'))//MODIFICAT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+            {
+                double nr = atof(sir[i]);
+                s_operand.st1[++s_operand.top1] = nr;
+                //depanare();
+            }
+
+
+            else
+            {
+                switch(sir[i][0])
+                {
+                    case 'p':
+                        {
+                            s_operand.st1[++s_operand.top1] = pi;
+                            break;
+                        }
+                    case 'x':
+                        {
+                            s_operand.st1[++s_operand.top1] = x;
+                            break;
+                        }
+                        //inceput de bloc nou
+                    case '(':
+                        {
+                            s_operator.st2[++s_operator.top2] = '(';
+                            break;
+                        }
+                    default:
+                        {
+                            unsigned pr_curent = prioritate(sir[i][0]); //prioritatea operatorului curent
+                            unsigned pr_top = prioritate(s_operator.st2[s_operator.top2]); //prioritatea operatorului din vf stivei
+                            if (pr_curent > pr_top)
+                            {
+                                s_operator.st2[++s_operator.top2] = sir[i][0];
+                            }
+                             // nr negativ aflat intre paranteze
+                            else if ((s_operator.st2[s_operator.top2] == '(' && sir[i][0] == ')')||s_operator.st2[s_operator.top2]==')')
+                                {
+                                    s_operator.top2--;
+                                }
+                            else
+                            {
+                                double val;
+                                double x1, x2;
+                                x1 = s_operand.st1[s_operand.top1 - 1]; //penultimul operand
+                                x2 = s_operand.st1[s_operand.top1]; // ultimul operand
+                                while (s_operator.top2 > 1 && !(pr_curent > pr_top))
+                                {
+                                   int g=0;//AM ADAUGAT ACEST g PENTRU APELUL FUNCTIILOR CARE FOLOSESC O SINGURA VARIABILA
+
+                                    switch(s_operator.st2[s_operator.top2]) //! daca nu se verifica niciun caz iese automat din switch?
+                                    {
+
+                                        case '=':
+                                            {
+                                                val = Egal(x1,x2);
+
+                                                break;
+                                            }
+                                        case '#':
+                                            {
+                                                val = Diferit(x1,x2);
+                                                break;
+                                            }
+                                        case '<':
+                                            {
+                                                val = Mai_Mic(x1,x2);
+                                                break;
+                                            }
+                                        case '>':
+                                            {
+                                                val = Mai_Mare(x1,x2);
+                                                break;
+                                            }
+                                        case '+':
+                                            {
+                                                val = Plus(x1,x2);
+                                                break;
+                                            }
+                                        case '-':
+                                            {
+                                                val = Minus(x1,x2);
+                                                break;
+                                            }
+                                        case '*':
+                                            {
+                                                val = Inmultire(x1,x2);
+                                                break;
+                                            }
+                                        case '/':
+                                            {
+                                                val = Impartire(x1,x2);
+                                                break;
+                                            }
+                                        case '^':
+                                            {
+                                                val = Putere(x1,x2);
+                                                break;
+                                            }
+                                        case 's':
+                                            {
+                                            val = Sinus(x2); g=1;//MODIFICAT TREBUIA X2 +g1=1
+                                            break;
+                                            }
+                                        case 'c':
+                                            {
+                                                val = Cosinus(x2); g=1;//MODIFICAT TREBUIA X2 +g1=1
+                                                break;
+                                            }
+                                        case 'a':
+                                            {
+                                                val = Modul(x2); g=1;//g1=1
+                                                break;
+                                            }
+                                        case 'l':
+                                            {
+                                                val = Logaritm(x2); g=1;//g1=1
+                                                break;
+                                            }
+                                        case 'e':
+                                            {
+                                                val = Exponential(x2); g=1;//g1=1
+                                                break;
+                                            }
+                                        case 'r':
+                                            {
+                                                val = Radical(x2); g=1;//g1=1
+                                                break;
+                                            }
+                                    }
+                                   // depanare();
+                                    if (s_operator.st2[s_operator.top2] == '(')
+                                    {
+                                        s_operator.top2--;
+                                        break;
+                                    }
+                                    if(g==0)//ACEST IF INSEAMNA: DACA AM FOLOSIT O FUNCTIE CU 2 PARAMETRI CARE AU FORMAT UN PARAMETRU (ADUNARE/SCADERE/INMULTIRE)
+                                    s_operand.top1--;//ATUNCI REDUCEM NUMARUL DE ELEMENTE DIN STIVA 1 CA SA NU DEA EROARE LA IF-ul DE LA LINIA 492
+                                    s_operand.st1[s_operand.top1] = val;
+                                    s_operator.top2--;
+                                    pr_top = prioritate(s_operator.st2[s_operator.top2]);
+                                     x1 = s_operand.st1[s_operand.top1 - 1];//MODIFICAT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                                     x2 = s_operand.st1[s_operand.top1];//MODIFICAT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+                            } //while
+                            if (sir[i][0] != ')')
+                                s_operator.st2[++s_operator.top2] = sir[i][0];
+                        } //else
+                        break;
+                    } //default
+            }
+        }
+        i++;
+    }//while
+
+  if (s_operand.top1 == 1)
+        rezultat = s_operand.st1[s_operand.top1];
+
+  else
+  {
+       eroare = true;
+       rezultat = Infinit;
+  }
+  return rezultat;
+}
+
+void Minimul_Maximul( Functie E,double &ymin,double &ymax)
+{
+    double x,y;
+    ymin=Infinit;
+    ymax=-20000000;
+    for(x=E.a;x<=E.b;x=x+0.01)
+    {
+        y=calculFunctie(x,E.comp,E.nr_comp);
+        if(y<ymin)
+            ymin=y;
+        if(y>ymax)
+            ymax=y;
+    }
+}
+void ReprezintaGrafic(float a, float b, char sir[][MAX], int L)
+{
+ //   float xmax, ymax; //coordonate maxim
+ //   float xmin, ymin; //coordonate minim
+    float x, y; // f(x)=y
+    float x_next, y_next; //coordonatele succesoare lui x, y
+    int x_ecran, y_ecran; //coordonatele x,y transpuse pe ecran
+    int x_nextEcran, y_nextEcran; //coordonatele de pe ecran succesoare lui x_ecran, y_ecran
+    const float k = 2;
+    x = a;
+    y = calculFunctie(x, sir, L); //f(a) = y
+    x_ecran = 499 + unitate * x;   //499, deoarece coordonatele originii graficului sunt O(499,499)
+    y_ecran = 499 - unitate * y;
+    for (double i = 1; (i <= b - a && x <= b) ; i+=0.01)
+    {
+        x_next = a + i * k;
+        if (x_next <= b)
+        {
+
+            y_next = calculFunctie(x_next, sir, L);
+            x_nextEcran = 499 + unitate * x_next;
+            y_nextEcran = 499 - unitate * y_next;
+            setlinestyle(0,0,3);
+            if(y_ecran>1080||y_ecran<-110)
+                putpixel(x_ecran,y_ecran,GREEN);
+            else
+                line(x_ecran, y_ecran, x_nextEcran, y_nextEcran);
+            x = x_next;
+            y = y_next;
+            x_ecran = x_nextEcran;
+            y_ecran = y_nextEcran;
+        }
+    }
+}
+void ReprezintaAsimptota()
+{
+double ymin,ymax;
+int y1_ecran,y2_ecran;
+Functie E;
+ymin=E.a;
+ymax=E.a;
+Minimul_Maximul(E,ymin,ymax);
+y1_ecran=499-unitate*ymin;
+y2_ecran=499-unitate*ymax;
+setcolor(BLUE);
+line(0,y1_ecran,1000,y1_ecran);
+line(0,y2_ecran,1000,y2_ecran);
+
+}
+
+
+int main()
+{
+    double x, rezultat,a,b,ymin,ymax;
+    Functie E;
+
+    E.nr_comp = 0;
+
+/*
+while(1)
+   {
+    cout<<"Introduceti x: ";
+    cin>>x;
+    cin.get();
+    cout << "\nIntroduceti functia: ";
+    cin >> E.expresie;
+    addSpatii(E.expresie);
+    aflareComponente(E.expresie, E.comp, E.nr_comp);
+
+        cout << '\n';
+   for (int i = 1; i <= E.nr_comp; ++i)
+    {
+        cout<<"Componenta " << i <<": "<< E.comp[i]<< '\n';
+    }
+
+    rezultat = calculFunctie(x, E.comp, E.nr_comp);
+    if (eroare)
+    {
+        cout<<"Functia este incorecta d.p.d.v sintactic";
+        return 0;
+    }
+
+       cout << "Rezultatul functiei este: " << rezultat<<endl;
+           //x-(3*x+32)*(-32+2*x)
+           //rad(log(sin(x)))
+           //rad(sin(x)+3*x+5)
+           //rad(-1*(log(sin(x)))
+     cout << "Introduceti a b:";
+    cin>>E.a>>E.b;
+    for(double i=E.a;i<=E.b;i=i+0.03)
+    {
+
+        cout<<"f("<<i<<")= "<<calculFunctie(i,E.comp,E.nr_comp)<<endl;
+    }
+
+         cout<<endl;
+       //  cout<<"ymin si ymax sunt: ";
+
+         //Minimul_Maximul(E,ymin,ymax);
+         //cout<<ymin<<" "<<ymax;
+         cout<<endl;
+}
+*/
+
+          Meniu();
+
+/*
+    cout << "\nIntroduceti functia: ";
+    cin >> E.expresie;
+    addSpatii(E.expresie);
+    aflareComponente(E.expresie, E.comp, E.nr_comp);
+
+        cout << '\n';
+    cout << "Introduceti a b:";
+    cin>>E.a>>E.b;
+
+
+initwindow(1000,1000);
+Desenare_Axe();
+setcolor(GREEN);
+setlinestyle(0,0,2);
+ReprezintaGrafic(E.a,E.b,E.comp,E.nr_comp);
+
+getch();
+closegraph();
+*/
+
+
+
+
+    return 0;
+}
